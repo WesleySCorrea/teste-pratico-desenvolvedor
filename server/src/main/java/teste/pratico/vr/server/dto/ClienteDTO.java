@@ -1,21 +1,17 @@
 package teste.pratico.vr.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import teste.pratico.vr.server.model.Cliente;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
@@ -25,13 +21,13 @@ public class ClienteDTO {
 
     private String nome;
 
-    private BigDecimal limiteDeCompra;
+    private Double limiteDeCompra;
 
     @Min(value = 1)
     @Max(value = 31)
     private Integer diaDeFechamentoDaFatura;
 
-    private List<PedidoDTO> pedidos = new ArrayList<>();
+    private List<PedidosDTO> listaPedidos = new ArrayList<>();
 
     public ClienteDTO(Cliente cliente) {
         this.id = cliente.getId();
@@ -39,8 +35,8 @@ public class ClienteDTO {
         this.limiteDeCompra = cliente.getLimiteDeCompra();
         this.diaDeFechamentoDaFatura = cliente.getDiaDeFechamentoDaFatura();
 
-        List<PedidoDTO> listaDePedidosDTO = new ArrayList<>();
-        cliente.getPedidos().forEach(pedidos1 -> listaDePedidosDTO.add(new PedidoDTO(pedidos1)));
-        this.pedidos = listaDePedidosDTO;
+        List<PedidosDTO> listaPedidoDTO = new ArrayList<>();
+        cliente.getListaPedidos().forEach(pedidos -> listaPedidoDTO.add(new PedidosDTO(pedidos)));
+        this.listaPedidos = listaPedidoDTO;
     }
 }

@@ -1,6 +1,7 @@
 package teste.pratico.vr.server.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teste.pratico.vr.server.dto.ProdutoDTO;
@@ -35,7 +36,7 @@ public class ProdutoController {
      * @return ProdutoDTO
      */
     @GetMapping(value = "/{id}")
-    private ResponseEntity<ProdutoDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<ProdutoDTO> findById(@PathVariable Long id) {
 
         //Utilizar o método findById na classe ProdutoService
         var produto = produtoService.findById(id);
@@ -50,13 +51,13 @@ public class ProdutoController {
      * @return ProdutoDTO persistido
      */
     @PostMapping
-    private ResponseEntity<ProdutoDTO> insert(@RequestBody ProdutoDTO produtoDTO) {
+    public ResponseEntity<ProdutoDTO> insert(@RequestBody ProdutoDTO produtoDTO) {
 
         //Utilizar o método insert na classe ProdutoService
         var response = produtoService.insert(produtoDTO);
 
         //Retornar o Produto persistido
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     /**
@@ -65,7 +66,7 @@ public class ProdutoController {
      * @return ProdutoDTO atualizado
      */
     @PutMapping
-    private ResponseEntity<ProdutoDTO> update (@RequestBody ProdutoDTO produtoDTO) {
+    public ResponseEntity<ProdutoDTO> update (@RequestBody ProdutoDTO produtoDTO) {
 
         //Utilizar o método update na classe ProdutoService
         var response = produtoService.update(produtoDTO);
@@ -79,7 +80,7 @@ public class ProdutoController {
      * @param id
      */
     @DeleteMapping(value = "/{id}")
-    private ResponseEntity<Void> delete (@PathVariable Long id) {
+    public ResponseEntity<Void> delete (@PathVariable Long id) {
 
         //Utilizar o método delete na classe ProdutoService
         produtoService.delete(id);

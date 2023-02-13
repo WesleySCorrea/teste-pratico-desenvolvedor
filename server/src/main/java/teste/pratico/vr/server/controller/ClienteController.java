@@ -1,6 +1,7 @@
 package teste.pratico.vr.server.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import teste.pratico.vr.server.dto.ClienteDTO;
@@ -37,7 +38,7 @@ public class ClienteController {
      * @return ClienteDTO
      */
     @GetMapping(value = "/{id}")
-    private ResponseEntity<ClienteDTO> findById(@PathVariable Long id) {
+    public ResponseEntity<ClienteDTO> findById(@PathVariable Long id) {
 
         //Utilizar o método findById na classe ClienteService
         var cliente = clienteService.findById(id);
@@ -52,13 +53,13 @@ public class ClienteController {
      * @return ClienteDTO persistido
      */
     @PostMapping
-    private ResponseEntity<ClienteDTO> insert(@Valid @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> insert(@Valid @RequestBody ClienteDTO clienteDTO) {
 
         //Utilizar o método insert na classe ClienteService
         var response = clienteService.insert(clienteDTO);
 
         //Retornar o CLiente persistido
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
 
@@ -68,7 +69,7 @@ public class ClienteController {
      * @return ClienteDTO atualizado
      */
     @PutMapping
-    private ResponseEntity<ClienteDTO> update (@Valid @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> update (@Valid @RequestBody ClienteDTO clienteDTO) {
 
         //Utilizar o método update na classe ClienteService
         var response = clienteService.update(clienteDTO);
@@ -82,7 +83,7 @@ public class ClienteController {
      * @param id
      */
     @DeleteMapping(value = "/{id}")
-    private ResponseEntity<Void> delete (@PathVariable Long id) {
+    public ResponseEntity<Void> delete (@PathVariable Long id) {
 
         //Utilizar o método delete na classe ClienteService
         clienteService.delete(id);
