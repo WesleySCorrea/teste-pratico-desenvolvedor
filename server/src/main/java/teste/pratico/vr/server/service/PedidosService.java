@@ -15,6 +15,7 @@ import teste.pratico.vr.server.repositories.ClienteRepository;
 import teste.pratico.vr.server.repositories.PedidosRepository;
 import teste.pratico.vr.server.repositories.ProdutoPedidoRepository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,6 +70,9 @@ public class PedidosService {
 
         //SetId no PedidoDTO, para evitar que o cliente seja atualizado nesse método
         pedidoDTO.setId(null);
+
+        LocalDate dataPedido = LocalDate.now();
+        pedidoDTO.setDataPedido(dataPedido);
 
         //Definindo o valor total do pedido
         pedidoDTO.setValorTotal(valorTotalPedido(pedidoDTO.getProdutosPedidos()));
