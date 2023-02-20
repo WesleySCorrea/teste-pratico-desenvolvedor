@@ -3,6 +3,7 @@ package teste.pratico.vr.server.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import teste.pratico.vr.server.dto.PedidosDTO;
 import teste.pratico.vr.server.dto.ProdutoPedidoDTO;
@@ -66,9 +67,6 @@ public class PedidosService {
      */
     public PedidosDTO insert(PedidosDTO pedidoDTO) {
         Pedidos pedido;
-
-        //SetId no PedidoDTO, para evitar que o cliente seja atualizado nesse método
-        pedidoDTO.setId(null);
 
         //Definindo a data do pedido
         pedidoDTO.setDataPedido(LocalDate.now());
@@ -136,10 +134,8 @@ public class PedidosService {
 
         //Salvar o pedido atualizado utilizando a PedidoRepository
         try {
-            var novoProdutoPersistido = pedidosRepository.save(mapper.map(pedidoPersistido, Pedidos.class));
-            return mapper.map(novoProdutoPersistido, PedidosDTO.class);
-
-            //Converter o novo pedido em PedidoDTO novamente e retornar
+            var novoPedidoPersistido = this.insert(pedidoPersistido);
+            return mapper.map(novoPedidoPersistido,PedidosDTO.class);
         } catch (Exception e) {
             throw new PersistFailedException("Falha ao persistir o objeto");
         }
@@ -169,6 +165,35 @@ public class PedidosService {
                 .map(pedidos -> new ModelMapper().map(pedidos, PedidosDTO.class))
                 .collect(Collectors.toList());
     }
+
+
+    public List<PedidosDTO> findByCliente(Long id) {
+
+        var listaDePedidoPorCliente = pedidosRepository.findByCliente(id);
+
+        return listaDePedidoPorCliente.stream()
+                .map(pedidos -> new ModelMapper().map(pedidos, PedidosDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<PedidosDTO> findByDate(LocalDate dataInicio, LocalDate dataFinal) {
+
+        var listaDePedidoEntreDatas = pedidosRepository.findEntryDate(dataInicio, dataFinal);
+
+        return listaDePedidoEntreDatas.stream()
+                .map(pedidos -> new ModelMapper().map(pedidos, PedidosDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    public List<PedidosDTO> findByProduto(Long id) {
+
+        var listaDePedidoPorProduto = pedidosRepository.findByProdutos(id);
+
+        return listaDePedidoPorProduto.stream()
+                .map(pedidos -> new ModelMapper().map(pedidos, PedidosDTO.class))
+                .collect(Collectors.toList());
+    }
+
 
     private Double valorTotalPedido(List<ProdutoPedidoDTO> produtoPedidoDTO) {
 
@@ -221,6 +246,7 @@ public class PedidosService {
 
     private LocalDate valorDataDoInicioDaFatura (PedidosDTO pedidosDTO) {
 
+        //Definindo o dia da fatura
         var cliente = clienteRepository.findById(pedidosDTO.getCliente().getId());
         var diaDaFatura = cliente.get().getDiaDeFechamentoDaFatura();
         LocalDate dataDaFatura;

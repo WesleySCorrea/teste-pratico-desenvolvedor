@@ -5,6 +5,8 @@ import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import teste.pratico.vr.server.dto.ClienteDTO;
+import teste.pratico.vr.server.dto.PedidosDTO;
+import teste.pratico.vr.server.dto.ProdutoDTO;
 import teste.pratico.vr.server.exception.runtime.ValidationNotPermissionException;
 import teste.pratico.vr.server.exception.runtime.ObjectNotFoundException;
 import teste.pratico.vr.server.exception.runtime.PersistFailedException;
@@ -57,9 +59,6 @@ public class ClienteService {
     public ClienteDTO insert(ClienteDTO clienteDTO) {
         Cliente cliente;
 
-        //SetId no clienteDTO, para evitar que o cliente seja atualizado nesse método
-        clienteDTO.setId(null);
-
         //Validar o novo dia de fechamento da fatura
         if (clienteDTO.getDiaDeFechamentoDaFatura() > 31 || clienteDTO.getDiaDeFechamentoDaFatura() < 1) {
             throw new ValidationNotPermissionException("dia " + clienteDTO.getDiaDeFechamentoDaFatura() + " para o fechamento da fatura não é valido!");
@@ -107,10 +106,10 @@ public class ClienteService {
 
         //Salvar o cliente atualizado utilizando a ClienteRepository
         try {
-            var novoClientePersistido = clienteRepository.save(mapper.map(clientePersistido,Cliente.class));
+            var novoClientePersistido = this.insert(clientePersistido);
 
             //Converter o novo cliente em ClienteDTO novamente e retornar
-            return mapper.map(novoClientePersistido,ClienteDTO.class);
+            return mapper.map(novoClientePersistido, ClienteDTO.class);
         }catch (Exception e) {
             throw new PersistFailedException("Falha ao persistir o objeto");
         }

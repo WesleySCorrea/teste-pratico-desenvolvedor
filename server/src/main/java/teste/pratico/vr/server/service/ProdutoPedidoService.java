@@ -60,9 +60,6 @@ public class ProdutoPedidoService {
 
         ProdutoPedido produtoPedido;
 
-        //SetId no produtoPedidoDTO, para evitar que o produto seja atualizado nesse método
-        produtoPedidoDTO.setId(null);
-
         //Setar automaticamente o atributo valorPedido do produtoPedidoDTO
         produtoPedidoDTO.setValorPedido(valorTotalProdutoPedido(produtoPedidoDTO));
 
@@ -103,9 +100,9 @@ public class ProdutoPedidoService {
 
         //Salvar o produtoPedido atualizado utilizando a ProdutoPedidoRepository
         try {
-            var novoProdutoPedidoPersistido = produtoPedidoRepository.save(mapper.map(produtoPedidoPersistido,ProdutoPedido.class));
+            var novoProdutoPedidoPersistido = this.insert(produtoPedidoPersistido);
 
-            //Converter o novo produtoPedido em ProdutoPedidoDTO novamente e retornar
+            //Converter o novo produto em ProdutoDTO novamente e retornar
             return mapper.map(novoProdutoPedidoPersistido,ProdutoPedidoDTO.class);
         }catch (Exception e) {
             throw new PersistFailedException("Falha ao persistir o objeto");

@@ -97,8 +97,46 @@ public class PedidosController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalDate dataFatura = LocalDate.parse(dataStringFatura,formatter);
 
+        //Utilizar o método findByPedidoWithDataFatura na classe PedidosService
         var response = pedidosService.findByPedidoWithDataFatura(dataFatura);
 
+        //Retornar uma Lista de Pedidos a partir da data da fatura
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping(value = "/cliente/{id}")
+    public ResponseEntity<List<PedidosDTO>> findByCliente (@PathVariable Long id) {
+
+        //Utilizar o método findByCliente na classe PedidosService
+        var response = pedidosService.findByCliente(id);
+
+        //Retornar uma Lista de Pedidos de um cliente com id específico
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping(value = "/entredatas/{dataStringInicio}/{dataStringFinal}")
+    public ResponseEntity<List<PedidosDTO>> findByCliente (@PathVariable String dataStringInicio, @PathVariable String dataStringFinal) {
+
+        //Formatar o String data que veio na url e passar para LocalDate
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate dataInicio = LocalDate.parse(dataStringInicio,formatter);
+        LocalDate dataFinal = LocalDate.parse(dataStringFinal,formatter);
+
+        //Utilizar o método findByDate na classe PedidosService
+        var response = pedidosService.findByDate(dataInicio, dataFinal);
+
+
+        //Retornar uma Lista de Pedidos realizados entra as datas
+        return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping(value = "/produtos/{id}")
+    public ResponseEntity<List<PedidosDTO>> findByProdutos (@PathVariable Long id) {
+
+        //Utilizar o método findByProduto na classe PedidosService
+        var response = pedidosService.findByProduto(id);
+
+        //Retornar uma Lista de Pedidos que contém o produto com id específico
         return ResponseEntity.ok().body(response);
     }
 }

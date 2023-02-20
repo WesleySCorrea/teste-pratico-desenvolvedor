@@ -56,9 +56,6 @@ public class ProdutoService {
     public ProdutoDTO insert(ProdutoDTO produtoDTO) {
         Produto produto;
 
-        //SetId no produtoDTO, para evitar que o produto seja atualizado nesse método
-        produtoDTO.setId(null);
-
         //Converter ProdutoDTO em Produto
         var request = mapper.map(produtoDTO, Produto.class);
 
@@ -96,7 +93,7 @@ public class ProdutoService {
 
         //Salvar o produto atualizado utilizando a ProdutoRepository
         try {
-            var novoProdutoPersistido = produtoRepository.save(mapper.map(produtoPersistido,Produto.class));
+            var novoProdutoPersistido = this.insert(produtoPersistido);
 
             //Converter o novo produto em ProdutoDTO novamente e retornar
             return mapper.map(novoProdutoPersistido,ProdutoDTO.class);
