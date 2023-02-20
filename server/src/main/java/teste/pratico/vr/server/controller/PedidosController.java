@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import teste.pratico.vr.server.dto.PedidosDTO;
 import teste.pratico.vr.server.service.PedidosService;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -87,5 +89,16 @@ public class PedidosController {
 
         //Deletar um Pedido com Id Específico
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/data/{dataStringFatura}")
+    public ResponseEntity<List<PedidosDTO>> findByPedidoWithData (@PathVariable String dataStringFatura) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate dataFatura = LocalDate.parse(dataStringFatura,formatter);
+
+        var response = pedidosService.findByPedidoWithDataFatura(dataFatura);
+
+        return ResponseEntity.ok().body(response);
     }
 }

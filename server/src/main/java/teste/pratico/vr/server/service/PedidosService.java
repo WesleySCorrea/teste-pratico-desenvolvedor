@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import teste.pratico.vr.server.dto.ClienteDTO;
 import teste.pratico.vr.server.dto.PedidosDTO;
 import teste.pratico.vr.server.dto.ProdutoPedidoDTO;
 import teste.pratico.vr.server.exception.runtime.ObjectNotFoundException;
@@ -71,15 +70,20 @@ public class PedidosService {
         //SetId no PedidoDTO, para evitar que o cliente seja atualizado nesse método
         pedidoDTO.setId(null);
 
-        LocalDate dataPedido = LocalDate.now();
-        pedidoDTO.setDataPedido(dataPedido);
+        //Definindo a data do pedido
+        pedidoDTO.setDataPedido(LocalDate.now());
 
         //Definindo o valor total do pedido
-        pedidoDTO.setValorTotal(valorTotalPedido(pedidoDTO.getProdutosPedidos()));
+        pedidoDTO.setValorTotal(this.valorTotalPedido(pedidoDTO.getProdutosPedidos()));
+
+        LocalDate dataInicioDaFatura = this.valorDataDoInicioDaFatura(pedidoDTO);
+        LocalDate dataFechamentoDaFatura = this.valorDataDoFimDaFatura(dataInicioDaFatura);
 
         //Verificação de crédito
-        if (verificacaoDeCredito(pedidoDTO) != Boolean.TRUE) {
-            throw new PersistFailedException("Verificação de credito falhou");
+        if (verificacaoDeCredito(pedidoDTO, dataInicioDaFatura) != Boolean.TRUE) {
+            throw new PersistFailedException("Verificação de credito falhou: " +
+                    "O limite de crédito do cliente é de R$" + this.creditoDisponivel(pedidoDTO, dataInicioDaFatura)
+            + " e a data de fechamento da fatura é dia " + dataFechamentoDaFatura);
         }
 
         //Converter PedidoDTO em cliente
@@ -155,6 +159,17 @@ public class PedidosService {
         }
     }
 
+    public List<PedidosDTO> findByPedidoWithDataFatura(LocalDate dateFatura) {
+
+        //Utilizar o método findByPedidoWithData na camada PedidoRepository
+        var listaPedidoComData = pedidosRepository.findByPedidoWithDataFatura(dateFatura);
+
+        //Converter lista de Pedido para PedidoDTO e retornar a lista
+        return listaPedidoComData.stream()
+                .map(pedidos -> new ModelMapper().map(pedidos, PedidosDTO.class))
+                .collect(Collectors.toList());
+    }
+
     private Double valorTotalPedido(List<ProdutoPedidoDTO> produtoPedidoDTO) {
 
         Double valorTotalPedido = 0.00;
@@ -172,12 +187,71 @@ public class PedidosService {
         return valorTotalPedido;
     }
 
-    private Boolean verificacaoDeCredito(PedidosDTO pedidoDTO) {
+    private Boolean verificacaoDeCredito(PedidosDTO pedidoDTO, LocalDate dataInicioDaFatura) {
+
+        //Verificando credito do cliente
+        var creditoDisponivel = this.creditoDisponivel(pedidoDTO, dataInicioDaFatura);
+
+        //Validando a verificação de crédito com a compra atual
+        return creditoDisponivel > pedidoDTO.getValorTotal();
+    }
+
+    private Double creditoDisponivel(PedidosDTO pedidoDTO, LocalDate dataDaFatura) {
 
         //Buscando o limite de crédito do cliente
         var cliente = clienteRepository.findById(pedidoDTO.getCliente().getId());
 
-        //Validando a verificação de crédito
-        return (cliente.get().getLimiteDeCompra()) > pedidoDTO.getValorTotal();
+        //Validando a fatura
+//        LocalDate dataDaFatura = this.valorDataDoInicioDaFatura(pedidoDTO, dataD);
+
+        //Listando todas as compras do cliente em relação a fatura
+        var pedidosPorData = pedidosRepository.findByPedidoWithDataFaturaAndCliente(dataDaFatura, pedidoDTO.getCliente().getId());
+
+        //Calculando o valor total da fatura
+        var valorTotalFatura = 0;
+
+        for (Pedidos pedidos: pedidosPorData) {
+            valorTotalFatura += pedidos.getValorTotal();
+        }
+
+        var valorTotalDeCredito = cliente.get().getLimiteDeCompra() - valorTotalFatura;
+
+            return valorTotalDeCredito;
+    }
+
+    private LocalDate valorDataDoInicioDaFatura (PedidosDTO pedidosDTO) {
+
+        var cliente = clienteRepository.findById(pedidosDTO.getCliente().getId());
+        var diaDaFatura = cliente.get().getDiaDeFechamentoDaFatura();
+        LocalDate dataDaFatura;
+
+        //Validando o dia da fatura
+        if (diaDaFatura >= LocalDate.now().lengthOfMonth()) {
+            dataDaFatura = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        } else {
+            dataDaFatura = LocalDate.now().withDayOfMonth(diaDaFatura);
+        }
+
+        //Validando o mes da fatura
+        if (dataDaFatura.isAfter(LocalDate.now()) && dataDaFatura.getMonthValue() == 1) {
+            dataDaFatura = dataDaFatura.withMonth(12).minusYears(1);
+        } else if (dataDaFatura.isAfter(LocalDate.now())) {
+            dataDaFatura = dataDaFatura.minusMonths(1);
+        }
+
+        return dataDaFatura;
+    }
+
+    private  LocalDate valorDataDoFimDaFatura (LocalDate dataInicioFatura) {
+
+        LocalDate dataFimFatura;
+
+        if (dataInicioFatura.getMonthValue() == 12) {
+            dataFimFatura = dataInicioFatura.withMonth(1).plusYears(1);
+        } else {
+            dataFimFatura = dataInicioFatura.plusMonths(1);
+        }
+
+        return dataFimFatura;
     }
 }
