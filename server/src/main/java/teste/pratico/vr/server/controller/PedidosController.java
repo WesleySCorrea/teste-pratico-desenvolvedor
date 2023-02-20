@@ -104,6 +104,11 @@ public class PedidosController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * Método para retornar uma Lista de Pedidos de um cliente específico
+     * @param id
+     * @return Lista de PedidosDTO
+     */
     @GetMapping(value = "/cliente/{id}")
     public ResponseEntity<List<PedidosDTO>> findByCliente (@PathVariable Long id) {
 
@@ -114,6 +119,12 @@ public class PedidosController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * Método para retornar uma Lista de Pedidos de entre as datas especificas
+     * @param dataStringInicio
+     * @param dataStringFinal
+     * @return Lista de PedidosDTO
+     */
     @GetMapping(value = "/entredatas/{dataStringInicio}/{dataStringFinal}")
     public ResponseEntity<List<PedidosDTO>> findByCliente (@PathVariable String dataStringInicio, @PathVariable String dataStringFinal) {
 
@@ -130,6 +141,11 @@ public class PedidosController {
         return ResponseEntity.ok().body(response);
     }
 
+    /**
+     * Método para retornar uma Lista de Pedidos de que contenham o id do produto específico
+     * @param id
+     * @return Lista de PedidosDTO
+     */
     @GetMapping(value = "/produtos/{id}")
     public ResponseEntity<List<PedidosDTO>> findByProdutos (@PathVariable Long id) {
 
