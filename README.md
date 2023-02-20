@@ -51,10 +51,14 @@ Nessa API, há vários pacotes que serão listados e explicados quais as funçõ
 
 
 
-2. **PedidosController:** Essá controller contém os endpoints responsável por buscar dados dos Pedidos no banco de dados. Ha cinco endpoints nessa classe, que serão citados a seguir:
+2. **PedidosController:** Essá controller contém os endpoints responsável por buscar dados dos Pedidos no banco de dados. Ha nove endpoints nessa classe, que serão citados a seguir:
 
 * Um método GET com URL http://localhost:8080/api/pedidos - Endpoint responsável por buscar todos os dados da tabela Pedido.
 * Um método GET com URL http://localhost:8080/api/pedidos/{id} - Endpoint responsável por buscar um Pedido com um ID específico.
+* Um método GET com URL http://localhost:8080/api/pedidos/data/{dataStringFatura} - Endpoint responsável por a data de inicio da fatura de um cliente.
+* Um método GET com URL http://localhost:8080/api/pedidos/cliente/{id} - Endpoint responsável por buscar todos os dados da tabela Pedido com cliente ID específico.
+* Um método GET com URL http://localhost:8080/api/pedidos/entredatas/{dataStringInicio}/{dataStringFinal} - Endpoint responsável por buscar todos os dados da tabela .Pedido que tenham as datas dos pedidos entre as datas específicas.
+* Um método GET com URL http://localhost:8080/api/pedidosprodutos/{id}" - Endpoint responsável por buscar todos os dados da tabela Pedido que contenham um produto ID específico.
 * Um método POST com URL http://localhost:8080/api/pedidos - Endpoint responsável por inserir dados de um Pedido no banco de dados.
   O corpo da requisição para adicionar um objeto Pedido ao banco de dados deve seguir esse padrão exemplo:
 
